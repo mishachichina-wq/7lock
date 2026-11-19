@@ -43,10 +43,13 @@ final class DateBarView: UIView {
 		super.init(frame: frame)
 
 		format(label: &timeLabel)
-		timeLabel.font = UIFont(name: "HelveticaNeue-UltraLight", size: 78) ?? UIFont.systemFont(ofSize: 78, weight: .ultraLight)
-		timeLabel.layer.shadowOpacity = 0.6
+		timeLabel.font = UIFont(name: "HelveticaNeue-UltraLight", size: 67) ?? UIFont.systemFont(ofSize: 67, weight: .ultraLight)
+		timeLabel.layer.shadowOpacity = 0.12
+		timeLabel.adjustsFontSizeToFitWidth = true
+		timeLabel.minimumScaleFactor = 0.8
 
-		format(label: &dateLabel, size: 17)
+		format(label: &dateLabel, size: 16)
+		dateLabel.font = UIFont(name: "HelveticaNeue-Medium", size: 16) ?? UIFont.systemFont(ofSize: 16, weight: .medium)
 		format(label: &artistLabel, size: 12, bold: true)
 		format(label: &songLabel, size: 12, bold: true)
 		format(label: &albumLabel, size: 12, bold: true)
@@ -94,12 +97,12 @@ final class DateBarView: UIView {
 		backgroundView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
 
 		timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-		timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 0).isActive = true
+		timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 4).isActive = true
 		timeLabel.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
-		timeLabel.heightAnchor.constraint(equalToConstant: 91).isActive = true
+		timeLabel.heightAnchor.constraint(equalToConstant: 76).isActive = true
 
 		dateLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-		dateLabel.topAnchor.constraint(equalTo: topAnchor, constant: 80).isActive = true
+		dateLabel.topAnchor.constraint(equalTo: topAnchor, constant: 73).isActive = true
 		dateLabel.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
 		dateLabel.heightAnchor.constraint(equalToConstant: 22).isActive = true
 

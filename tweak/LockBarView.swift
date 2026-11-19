@@ -36,8 +36,8 @@ final class LockBarView: UIView {
 		backgroundView.translatesAutoresizingMaskIntoConstraints = false
 
 		unlockSlider = GlintySlider(frame: .zero) // CGRect(x: 20, y: 22, width: frame.size.width - 88, height: 52)
-		unlockSlider.text = "Разблокируйте"
-		unlockSlider.font = UIFont.systemFont(ofSize: 21, weight: .ultraLight)
+		unlockSlider.text = "slide to unlock"
+		unlockSlider.font = UIFont(name: "HelveticaNeue-Light", size: 20) ?? UIFont.systemFont(ofSize: 20, weight: .light)
 		unlockSlider.centerWithIcon = false
 		unlockSlider.translatesAutoresizingMaskIntoConstraints = false
 
@@ -67,10 +67,10 @@ final class LockBarView: UIView {
 			unlockSlider.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20).isActive = true
 			unlockSlider.widthAnchor.constraint(equalTo: widthAnchor, constant: -88).isActive = true
 
-			cameraGrabber.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -19).isActive = true
+			cameraGrabber.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -14).isActive = true
 			cameraGrabber.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-			cameraGrabber.widthAnchor.constraint(equalToConstant: 30).isActive = true
-			cameraGrabber.heightAnchor.constraint(equalToConstant: 52).isActive = true
+			cameraGrabber.widthAnchor.constraint(equalToConstant: 26).isActive = true
+			cameraGrabber.heightAnchor.constraint(equalToConstant: 42).isActive = true
 		}
 	}
 
