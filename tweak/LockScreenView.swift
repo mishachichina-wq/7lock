@@ -21,6 +21,18 @@ import UIKit
 
 	var dateViewHeightConstraint: NSLayoutConstraint?
 
+    // Long-press the clock for 1.5 seconds to open the on-device editor.
+    private let editorKey = "com.7lock.layout.v1"
+    private let editorElements = ["Clock", "Date", "Unlock", "Camera"]
+    private var editorSelection = 0
+    private var editorPanel: UIView?
+    private var editorX = UISlider()
+    private var editorY = UISlider()
+    private var editorSize = UISlider()
+    private var editorValueLabels = [UILabel]()
+    private var editorOffsets: [[CGFloat]] = [[0,0,67],[0,0,16],[0,0,20],[0,0,26]]
+
+
 	let notificationAlertView = NotificationAlertView(request: nil)
 	let notificationTableView = UITableView(frame: .zero, style: .plain)
 
@@ -110,6 +122,12 @@ import UIKit
 		addSubview(bottomGrabber)
 
 		activateConstraints()
+        loadEditorOffsets()
+        applyEditorOffsets()
+        let editorGesture = UILongPressGestureRecognizer(target: self, action: #selector(openLayoutEditor(_:)))
+        editorGesture.minimumPressDuration = 1.5
+        dateView.addGestureRecognizer(editorGesture)
+        dateView.isUserInteractionEnabled = true
 		observePreferences()
 
 		NotificationCenter.default.addObserver(self,
@@ -214,6 +232,147 @@ import UIKit
 		notificationTableView.bottomAnchor.constraint(equalTo: lockView.topAnchor).isActive = true
 	}
 
+    private func loadEditorOffsets() {
+        guard let saved = UserDefaults.standard.array(forKey: editorKey) as? [[Double]], saved.count == 4 else { return }
+        for i in 0..<4 where saved[i].count == 3 {
+            editorOffsets[i] = saved[i].map { CGFloat($0) }
+        }
+    }
+
+    private func applyEditorOffsets() {
+        dateView.timeLabel.transform = CGAffineTransform(translationX: editorOffsets[0][0], y: editorOffsets[0][1])
+        dateView.dateLabel.transform = CGAffineTransform(translationX: editorOffsets[1][0], y: editorOffsets[1][1])
+        lockView.unlockSlider.glintyTextView.transform = CGAffineTransform(translationX: editorOffsets[2][0], y: editorOffsets[2][1])
+        lockView.cameraGrabber.transform = CGAffineTransform(translationX: editorOffsets[3][0], y: editorOffsets[3][1])
+        dateView.timeLabel.font = UIFont(name: "HelveticaNeue-UltraLight", size: editorOffsets[0][2]) ?? UIFont.systemFont(ofSize: editorOffsets[0][2], weight: .ultraLight)
+        dateView.dateLabel.font = UIFont(name: "HelveticaNeue-Medium", size: editorOffsets[1][2]) ?? UIFont.systemFont(ofSize: editorOffsets[1][2], weight: .medium)
+        lockView.unlockSlider.font = UIFont(name: "HelveticaNeue-Light", size: editorOffsets[2][2]) ?? UIFont.systemFont(ofSize: editorOffsets[2][2], weight: .light)
+        // Keep the camera touch target unchanged; scale only the rendered image.
+        let scale = editorOffsets[3][2] / 26.0
+        lockView.cameraGrabber.transform = CGAffineTransform(translationX: editorOffsets[3][0], y: editorOffsets[3][1]).scaledBy(x: scale, y: scale)
+    }
+
+    @objc private func openLayoutEditor(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began, editorPanel == nil else { return }
+        editorSelection = 0
+        let panel = UIView()
+        panel.backgroundColor = UIColor(white: 0.10, alpha: 0.97)
+        panel.layer.cornerRadius = 15
+        panel.layer.borderWidth = 1
+        panel.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+        panel.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(panel)
+        bringSubviewToFront(panel)
+        editorPanel = panel
+        NSLayoutConstraint.activate([
+            panel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            panel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
+            panel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
+            panel.heightAnchor.constraint(equalToConstant: 285)
+        ])
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 7
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        panel.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: panel.leadingAnchor, constant: 14),
+            stack.trailingAnchor.constraint(equalTo: panel.trailingAnchor, constant: -14),
+            stack.topAnchor.constraint(equalTo: panel.topAnchor, constant: 12),
+            stack.bottomAnchor.constraint(equalTo: panel.bottomAnchor, constant: -12)
+        ])
+        let title = UILabel()
+        title.text = "7lock · Layout Editor"
+        title.textColor = .white
+        title.textAlignment = .center
+        title.font = UIFont.boldSystemFont(ofSize: 16)
+        stack.addArrangedSubview(title)
+        let picker = UISegmentedControl(items: editorElements)
+        picker.selectedSegmentIndex = 0
+        picker.addTarget(self, action: #selector(editorChangedElement(_:)), for: .valueChanged)
+        stack.addArrangedSubview(picker)
+        editorValueLabels.removeAll()
+        for (index, name) in ["Horizontal", "Vertical", "Size"].enumerated() {
+            let row = UIStackView()
+            row.axis = .horizontal
+            row.spacing = 6
+            let label = UILabel()
+            label.text = name
+            label.textColor = .white
+            label.font = UIFont.systemFont(ofSize: 12)
+            label.widthAnchor.constraint(equalToConstant: 67).isActive = true
+            row.addArrangedSubview(label)
+            let slider = UISlider()
+            slider.minimumValue = index == 2 ? 10 : -100
+            slider.maximumValue = index == 2 ? 110 : 100
+            slider.tag = index
+            slider.addTarget(self, action: #selector(editorSliderMoved(_:)), for: .valueChanged)
+            row.addArrangedSubview(slider)
+            let value = UILabel()
+            value.textColor = .white
+            value.font = UIFont.monospacedDigitSystemFont(ofSize: 12, weight: .regular)
+            value.textAlignment = .right
+            value.widthAnchor.constraint(equalToConstant: 38).isActive = true
+            row.addArrangedSubview(value)
+            editorValueLabels.append(value)
+            stack.addArrangedSubview(row)
+            if index == 0 { editorX = slider }
+            if index == 1 { editorY = slider }
+            if index == 2 { editorSize = slider }
+        }
+        let buttons = UIStackView()
+        buttons.axis = .horizontal
+        buttons.distribution = .fillEqually
+        buttons.spacing = 8
+        for (name, action) in [("Reset", #selector(resetLayoutEditor)), ("Save", #selector(saveLayoutEditor)), ("Close", #selector(closeLayoutEditor))] {
+            let button = UIButton(type: .system)
+            button.setTitle(name, for: .normal)
+            button.setTitleColor(.white, for: .normal)
+            button.backgroundColor = UIColor(white: 0.35, alpha: 1)
+            button.layer.cornerRadius = 8
+            button.addTarget(self, action: action, for: .touchUpInside)
+            buttons.addArrangedSubview(button)
+        }
+        stack.addArrangedSubview(buttons)
+        updateEditorSliders()
+    }
+
+    @objc private func editorChangedElement(_ sender: UISegmentedControl) {
+        editorSelection = sender.selectedSegmentIndex
+        updateEditorSliders()
+    }
+
+    private func updateEditorSliders() {
+        let values = editorOffsets[editorSelection]
+        for (i, slider) in [editorX, editorY, editorSize].enumerated() {
+            slider.value = Float(values[i])
+            editorValueLabels[i].text = String(Int(values[i].rounded()))
+        }
+    }
+
+    @objc private func editorSliderMoved(_ sender: UISlider) {
+        editorOffsets[editorSelection][sender.tag] = CGFloat(sender.value)
+        applyEditorOffsets()
+        updateEditorSliders()
+    }
+
+    @objc private func saveLayoutEditor() {
+        let saved = editorOffsets.map { $0.map { Double($0) } }
+        UserDefaults.standard.set(saved, forKey: editorKey)
+        closeLayoutEditor()
+    }
+
+    @objc private func resetLayoutEditor() {
+        editorOffsets = [[0,0,67],[0,0,16],[0,0,20],[0,0,26]]
+        applyEditorOffsets()
+        updateEditorSliders()
+    }
+
+    @objc private func closeLayoutEditor() {
+        editorPanel?.removeFromSuperview()
+        editorPanel = nil
+    }
+
 	override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
 		if !useNotifications {
 			let frame = CGRect(x: 0,
@@ -281,7 +440,7 @@ import UIKit
 		}, completion: { _ in
 			self.lockView.unlockSlider.uiSlider.value = 0
 			self.lockView.unlockSlider.glintyTextView.alpha = 1
-			self.lockView.unlockSlider.glintyTextView.transform = .identity
+			self.lockView.unlockSlider.glintyTextView.transform = CGAffineTransform(translationX: self.editorOffsets[2][0], y: self.editorOffsets[2][1])
 			self.dateView.transform = .identity
 		})
 	}
@@ -295,7 +454,7 @@ import UIKit
 	@objc func present() {
 		self.alpha = 1
 		dateView.transform = .identity
-		lockView.unlockSlider.glintyTextView.transform = .identity
+		lockView.unlockSlider.glintyTextView.transform = CGAffineTransform(translationX: editorOffsets[2][0], y: editorOffsets[2][1])
 		lockView.unlockSlider.glintyTextView.alpha = 1
 		var dateFrame = self.dateView.frame
 		var lockFrame = self.lockView.frame
@@ -347,7 +506,7 @@ extension LockScreenView: LockBarViewDelegate {
 			UIView.animate(withDuration: 0.1) {
 				slider.setValue(0, animated: true)
 				self.lockView.unlockSlider.glintyTextView.alpha = 1
-			self.lockView.unlockSlider.glintyTextView.transform = .identity
+			self.lockView.unlockSlider.glintyTextView.transform = CGAffineTransform(translationX: self.editorOffsets[2][0], y: self.editorOffsets[2][1])
 			self.dateView.transform = .identity
 			}
 		} else {
@@ -359,7 +518,7 @@ extension LockScreenView: LockBarViewDelegate {
 	func sliderMoved(_ slider: UISlider) {
 		let distance = max(0, lockView.unlockSlider.bounds.width - 100)
 		let translation = CGFloat(slider.value) * distance
-		lockView.unlockSlider.glintyTextView.transform = CGAffineTransform(translationX: translation, y: 0)
+		lockView.unlockSlider.glintyTextView.transform = CGAffineTransform(translationX: translation + editorOffsets[2][0], y: editorOffsets[2][1])
 		dateView.transform = CGAffineTransform(translationX: translation, y: 0)
 		lockView.unlockSlider.glintyTextView.alpha = 1
 	}
