@@ -4,7 +4,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = SixLS
 SixLS_FILES = $(wildcard *.swift) $(wildcard *.m) Tweak.x
-SixLS_PRIVATE_FRAMEWORKS = UserNotificationsKit
+SixLS_PRIVATE_FRAMEWORKS = SpringBoardServices
 SixLS_CFLAGS = -fobjc-arc -I./Headers
 SixLS_SWIFTFLAGS += -DTWEAK
 
