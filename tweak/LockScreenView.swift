@@ -264,6 +264,8 @@ import UIKit
         addSubview(panel)
         bringSubviewToFront(panel)
         editorPanel = panel
+        // Keep the editor interactive above the underlying lockscreen views.
+        panel.isUserInteractionEnabled = true
         NSLayoutConstraint.activate([
             panel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
             panel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
@@ -353,7 +355,8 @@ import UIKit
     @objc private func editorSliderMoved(_ sender: UISlider) {
         editorOffsets[editorSelection][sender.tag] = CGFloat(sender.value)
         applyEditorOffsets()
-        updateEditorSliders()
+        // Do not reassign slider.value during tracking: UIKit must own the thumb.
+        editorValueLabels[sender.tag].text = String(Int(sender.value.rounded()))
     }
 
     @objc private func saveLayoutEditor() {
@@ -373,7 +376,27 @@ import UIKit
         editorPanel = nil
     }
 
+    // Route editor touches to the actual control, even when the underlying
+    // lockscreen uses pass-through hit testing for system notifications.
+    override public func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if let panel = editorPanel, !panel.isHidden, panel.alpha > 0.01 {
+            let local = convert(point, to: panel)
+            if panel.point(inside: local, with: event) {
+                return panel.hitTest(local, with: event) ?? panel
+            }
+        }
+        return super.hitTest(point, with: event)
+    }
+
 	override public func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        // The editor must receive touches even when classic notifications are disabled.
+        // Otherwise the passthrough area below swallows all editor controls.
+        if let panel = editorPanel, !panel.isHidden {
+            let panelPoint = convert(point, to: panel)
+            if panel.point(inside: panelPoint, with: event) {
+                return true
+            }
+        }
 		if !useNotifications {
 			let frame = CGRect(x: 0,
 							   y: timeBarDisabled ? 0 : statusBarHeight + 95,
