@@ -3,8 +3,8 @@ include $(THEOS)/makefiles/common.mk
 BUNDLE_NAME = SixLS
 SixLS_FILES = $(wildcard *.m) $(wildcard SkittyPrefs/*.m)
 SixLS_INSTALL_PATH = /Library/PreferenceBundles
-SixLS_PRIVATE_FRAMEWORKS = Preferences
-SixLS_CFLAGS = -fobjc-arc
+SixLS_CFLAGS = -fobjc-arc -Wno-error=deprecated-declarations
+SixLS_LDFLAGS += -Wl,-undefined,dynamic_lookup
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 

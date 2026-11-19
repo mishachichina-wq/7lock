@@ -9,4 +9,6 @@ SixLS_SWIFTFLAGS += -DTWEAK
 
 # Do not link UserNotificationsKit: the build SDK lacks its binary.
 # NCNotificationRequest is weak-imported in our local header.
+SixLS_LDFLAGS += -Wl,-undefined,dynamic_lookup
+
 include $(THEOS_MAKE_PATH)/tweak.mk
