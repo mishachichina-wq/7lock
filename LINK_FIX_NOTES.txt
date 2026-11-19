@@ -1,0 +1,4 @@
+Experimental linker fix for _OBJC_CLASS_$_NCNotificationRequest.
+Uses -undefined dynamic_lookup rather than linking a nonexistent UserNotificationsKit framework.
+Not build-tested; a successful link does not establish runtime compatibility on iOS 15.8.
+Keep working SixLS installed and retain jailbreak safe-mode recovery.
