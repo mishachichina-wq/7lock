@@ -73,12 +73,12 @@ import UIKit
 	}
 	var hideBottomBar: Bool? {
 		didSet {
-			lockView.isHidden = hideTopBar ?? false
+			lockView.isHidden = hideBottomBar ?? false
 		}
 	}
 	var unlockText: String? {
 		didSet {
-			lockView.unlockSlider.text = "Разблокируйте"
+			lockView.unlockSlider.text = "> Разблокируйте"
 		}
 	}
 	var timeBarDisabled = false
@@ -234,7 +234,7 @@ import UIKit
 		dateView.isHidden = manager?.disableDateBar ?? false
 		lockView.isHidden = manager?.disableLockBar ?? false
 		wallpaperGradient.isHidden = manager?.disableWallpaperShadow ?? false
-		lockView.unlockSlider.text = "Разблокируйте"
+		lockView.unlockSlider.text = "> Разблокируйте"
 		dateView.timeFormatter.dateFormat = manager?.militaryTime ?? false ? "HH:mm" : "h:mm"
 		timeBarDisabled = manager?.disableDateBar ?? false
 		useChargingView = !(manager?.disableChargingView ?? false)
@@ -293,6 +293,9 @@ import UIKit
 
 	@objc func present() {
 		self.alpha = 1
+		dateView.transform = .identity
+		lockView.unlockSlider.glintyTextView.transform = .identity
+		lockView.unlockSlider.glintyTextView.alpha = 1
 		var dateFrame = self.dateView.frame
 		var lockFrame = self.lockView.frame
 		dateFrame.origin.y = self.statusBarHeight
