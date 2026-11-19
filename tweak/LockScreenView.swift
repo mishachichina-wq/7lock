@@ -78,7 +78,7 @@ import UIKit
 	}
 	var unlockText: String? {
 		didSet {
-			lockView.unlockSlider.text = "> Разблокируйте"
+			lockView.unlockSlider.text = unlockText
 		}
 	}
 	var timeBarDisabled = false
@@ -177,7 +177,7 @@ import UIKit
 		dateView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
 		dateView.topAnchor.constraint(equalTo: topAnchor, constant: statusBarHeight).isActive = true
 		dateView.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
-		dateViewHeightConstraint = dateView.heightAnchor.constraint(equalToConstant: 95)
+		dateViewHeightConstraint = dateView.heightAnchor.constraint(equalToConstant: 110)
 		dateViewHeightConstraint?.isActive = true
 
 		lockView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
@@ -234,7 +234,7 @@ import UIKit
 		dateView.isHidden = manager?.disableDateBar ?? false
 		lockView.isHidden = manager?.disableLockBar ?? false
 		wallpaperGradient.isHidden = manager?.disableWallpaperShadow ?? false
-		lockView.unlockSlider.text = "> Разблокируйте"
+		lockView.unlockSlider.text = manager?.unlockText
 		dateView.timeFormatter.dateFormat = manager?.militaryTime ?? false ? "HH:mm" : "h:mm"
 		timeBarDisabled = manager?.disableDateBar ?? false
 		useChargingView = !(manager?.disableChargingView ?? false)
@@ -256,7 +256,7 @@ import UIKit
 			// nowPlayingView.artworkImageView.image = nil
 		} else {
 			dateView.isPlaying = false
-			dateViewHeightConstraint?.constant = 95
+			dateViewHeightConstraint?.constant = 110
 			nowPlayingView.isHidden = true
 		}
 	}

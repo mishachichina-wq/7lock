@@ -43,7 +43,7 @@ final class DateBarView: UIView {
 		super.init(frame: frame)
 
 		format(label: &timeLabel)
-		timeLabel.font = UIFont(name: "LockClock-Light", size: 65)
+		timeLabel.font = UIFont(name: "HelveticaNeue-UltraLight", size: 78) ?? UIFont.systemFont(ofSize: 78, weight: .ultraLight)
 		timeLabel.layer.shadowOpacity = 0.6
 
 		format(label: &dateLabel, size: 17)
@@ -55,7 +55,7 @@ final class DateBarView: UIView {
 		nowPlayingView.translatesAutoresizingMaskIntoConstraints = false
 
 		if UIDevice.current.model.hasPrefix("iPad") {
-			timeLabel.font = UIFont(name: "LockClock-Light", size: 58)
+			timeLabel.font = UIFont(name: "HelveticaNeue-UltraLight", size: 70) ?? UIFont.systemFont(ofSize: 70, weight: .ultraLight)
 		}
 
 		addSubview(backgroundView)
@@ -94,12 +94,12 @@ final class DateBarView: UIView {
 		backgroundView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
 
 		timeLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-		timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: -4).isActive = true
+		timeLabel.topAnchor.constraint(equalTo: topAnchor, constant: 0).isActive = true
 		timeLabel.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
-		timeLabel.heightAnchor.constraint(equalToConstant: 81).isActive = true
+		timeLabel.heightAnchor.constraint(equalToConstant: 91).isActive = true
 
 		dateLabel.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-		dateLabel.topAnchor.constraint(equalTo: topAnchor, constant: 65).isActive = true
+		dateLabel.topAnchor.constraint(equalTo: topAnchor, constant: 80).isActive = true
 		dateLabel.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
 		dateLabel.heightAnchor.constraint(equalToConstant: 22).isActive = true
 

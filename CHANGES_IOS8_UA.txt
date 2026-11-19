@@ -1,0 +1,13 @@
+7lock — iOS 8 visual update (source, not compiled)
+
+- HelveticaNeue-UltraLight 78pt clock (70pt iPad fallback), adjusted time/date layout.
+- Date language/format remains unchanged.
+- Camera asset replaced with a smaller iOS 8-style icon; original gesture view retained.
+- Slide Text is again loaded from tweak preferences; one chevron is prepended by GlintySlider.
+- Existing slide/unlock mechanics unchanged.
+
+IMPORTANT:
+- Turn OFF "Disable Time Bar" in SixLS preferences to show the tweak clock.
+- This source has NOT been compiled or tested on a device.
+- The system lock icon and occasional 'Unlocked' label are NOT yet removed: iOS 15 SpringBoard private view hooks require runtime validation to avoid hiding authentication state or breaking unlock.
+- The base is the available 7lock-main.zip source snapshot, not necessarily the latest GitHub revision.

@@ -27,7 +27,7 @@ final class GlintySlider: UIView {
 
 	var text: String? {
 		didSet {
-			glintyTextView.text = "> " + (text ?? "Разблокируйте")
+			glintyTextView.text = "> " + (text ?? "slide to unlock").replacingOccurrences(of: "^\\s*>+\\s*", with: "", options: .regularExpression)
 			glintyTextView.updateText()
 			fixTextColor()
 		}
