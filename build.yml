@@ -1,0 +1,35 @@
+name: Build 7lock rootless
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install tools
+        run: |
+          brew install ldid dpkg make
+          git clone --recursive --depth 1 https://github.com/theos/theos.git "$HOME/theos"
+          rm -rf "$HOME/theos/sdks"
+          git clone --depth 1 https://github.com/theos/sdks.git "$HOME/theos/sdks"
+      - name: Fetch SkittyPrefs if absent
+        run: |
+          if [ ! -f prefs/SkittyPrefs/SkittyPrefs.m ] && [ -z "$(find prefs/SkittyPrefs -name '*.m' -print -quit 2>/dev/null)" ]; then
+            mkdir -p prefs
+            rm -rf prefs/SkittyPrefs
+            git clone --depth 1 https://github.com/Skittyblock/SkittyPrefs.git prefs/SkittyPrefs
+          fi
+      - name: Build package
+        run: |
+          export THEOS="$HOME/theos"
+          make clean package FINALPACKAGE=1
+      - name: Upload deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: 7lock-rootless-deb
+          path: packages/*.deb
+          if-no-files-found: error
