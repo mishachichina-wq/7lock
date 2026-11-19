@@ -4,7 +4,9 @@
 #import <UIKit/UIKit.h>
 #import <AudioToolbox/AudioServices.h>
 #import <CoverSheet/CoverSheet.h>
-#import <UserNotificationsKit/UserNotificationsKit.h>
+#import "Headers/UserNotificationsKit/NCNotificationMasterList.h"
+#import "Headers/UserNotificationsKit/NCNotificationStructuredSectionList.h"
+#import "Headers/UserNotificationsKit/NCNotificationStructuredListViewController.h"
 #import <SpringBoardFoundation/SBFLockScreenDateViewController.h>
 #import <rootless.h>
 #import "Headers/SpringBoard/SpringBoard.h"
